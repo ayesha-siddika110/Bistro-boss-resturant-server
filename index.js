@@ -40,14 +40,14 @@ async function run() {
     app.post('/jwt', async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_Token, {
-        expiresIn: '1h'
+        expiresIn: '10h'
       })
-      console.log(token)
+      // console.log(token)
       res.send({ token })
     })
     //verifyToken midddleware
     const verifyToken = (req, res, next) => {
-      console.log('inside verifyToken ', req.headers.authorization)
+      // console.log('inside verifyToken ', req.headers.authorization)
       if (!req.headers.authorization) {
         return res.send(401).send({ message: 'unAuthorized access' })
       }
@@ -73,9 +73,19 @@ async function run() {
       next();
     }
 
-
     app.get('/menus', async (req, res) => {
       const result = await menusCollections.find().toArray()
+      res.send(result)
+    })
+    app.get('/menus/:id',async(req,res)=>{
+      const id = req.params.id
+      const query = { _id: id } //TODO: clean Non object id data and convert it to ObjectID
+      const result = await menusCollections.findOne(query)
+      res.send(result)
+    })
+    app.post('/menus',async(req,res)=>{
+      const newMenu = req.body;
+      const result = await menusCollections.insertOne(newMenu)
       res.send(result)
     })
     app.post('/carts', async (req, res) => {
